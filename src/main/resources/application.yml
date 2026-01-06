@@ -1,0 +1,76 @@
+spring:
+  application:
+    name: telegram-bot-expenses
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:homebudget}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    out-of-order: false
+
+# Telegram Bot Configuration
+telegram:
+  bot:
+    username: ${TELEGRAM_BOT_USERNAME}
+    token: ${TELEGRAM_BOT_TOKEN}
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.homebudget.bot: ${LOG_LEVEL:DEBUG}
+    org.telegram.telegrambots: ${TELEGRAM_LOG_LEVEL:INFO}
+    org.springframework.web: INFO
+    org.hibernate.SQL: ${SQL_LOG_LEVEL:DEBUG}
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+
+# Management & Actuator (optional, útil para monitoreo)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
