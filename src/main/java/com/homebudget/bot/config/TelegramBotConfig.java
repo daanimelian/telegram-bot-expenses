@@ -1,6 +1,7 @@
 package com.homebudget.bot.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -13,17 +14,20 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Component
 public class TelegramBotConfig extends TelegramLongPollingBot {
 
-    private final BotProperties botProperties;
+    @Value("${telegram.bot.token}")
+    private String botToken;
 
-    public TelegramBotConfig(BotProperties botProperties) {
-        super(botProperties.getToken());
-        this.botProperties = botProperties;
-        log.info("Bot de Telegram inicializado: @{}", botProperties.getUsername());
+    @Value("${telegram.bot.username}")
+    private String botUsername;
+
+    @Override
+    public String getBotToken() {
+        return botToken;
     }
 
     @Override
     public String getBotUsername() {
-        return botProperties.getUsername();
+        return botUsername;
     }
 
     @Override
