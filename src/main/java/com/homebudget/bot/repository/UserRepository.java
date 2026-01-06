@@ -4,35 +4,43 @@ import com.homebudget.bot.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositorio para la entidad User.
+ * Repositorio para la entidad User (Hogar).
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
-     * Busca un usuario por su ID de Telegram.
+     * Busca un hogar por su Chat ID de Telegram.
      *
-     * @param telegramId ID de Telegram del usuario
-     * @return Optional con el usuario si existe
+     * @param telegramChatId Chat ID de Telegram del hogar
+     * @return Optional con el hogar si existe
      */
-    Optional<User> findByTelegramId(Long telegramId);
+    Optional<User> findByTelegramChatId(String telegramChatId);
 
     /**
-     * Verifica si existe un usuario con el ID de Telegram dado.
+     * Verifica si existe un hogar con el Chat ID de Telegram dado.
      *
-     * @param telegramId ID de Telegram del usuario
+     * @param telegramChatId Chat ID de Telegram del hogar
      * @return true si existe, false en caso contrario
      */
-    boolean existsByTelegramId(Long telegramId);
+    boolean existsByTelegramChatId(String telegramChatId);
 
     /**
-     * Busca un usuario activo por su ID de Telegram.
+     * Busca un hogar activo por su Chat ID de Telegram.
      *
-     * @param telegramId ID de Telegram del usuario
-     * @return Optional con el usuario si existe y está activo
+     * @param telegramChatId Chat ID de Telegram del hogar
+     * @return Optional con el hogar si existe y está activo
      */
-    Optional<User> findByTelegramIdAndIsActiveTrue(Long telegramId);
+    Optional<User> findByTelegramChatIdAndIsActiveTrue(String telegramChatId);
+
+    /**
+     * Busca todos los hogares activos.
+     *
+     * @return Lista de hogares activos
+     */
+    List<User> findByIsActiveTrue();
 }

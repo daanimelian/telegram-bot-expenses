@@ -1,45 +1,44 @@
 package com.homebudget.bot.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entidad que representa un usuario del bot de Telegram.
+ * Entidad que representa un hogar registrado en el bot.
+ * Cada hogar tiene un chat de Telegram asociado y puede tener múltiples miembros familiares.
  */
 @Entity
 @Table(name = "users", indexes = {
-        @Index(name = "idx_users_telegram_id", columnList = "telegram_id")
+        @Index(name = "idx_users_telegram_chat_id", columnList = "telegram_chat_id")
 })
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User extends BaseEntity {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(name = "telegram_id", nullable = false, unique = true)
-    private Long telegramId;
+    @NotBlank
+    @Column(name = "telegram_chat_id", nullable = false, unique = true, length = 255)
+    private String telegramChatId;
 
-    @Column(name = "username", length = 255)
-    private String username;
+    @Column(name = "household_name", length = 255)
+    private String householdName;
 
-    @Column(name = "first_name", length = 255)
-    private String firstName;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "last_name", length = 255)
-    private String lastName;
-
-    @Column(name = "language_code", length = 10)
-    private String languageCode;
+    @Column(name = "encryption_salt", length = 255)
+    private String encryptionSalt;
 
     @Column(name = "is_active")
     @Builder.Default
@@ -47,23 +46,23 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Category> categories = new ArrayList<>();
+    private List<FamilyMember> familyMembers = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Expense> expenses = new ArrayList<>();
+    private List<Income> incomes = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 
     /**
-     * Retorna el nombre completo del usuario.
+     * Retorna el nombre del hogar o un valor por defecto.
      */
-    public String getFullName() {
-        if (firstName != null && lastName != null) {
-            return firstName + " " + lastName;
-        } else if (firstName != null) {
-            return firstName;
-        } else if (lastName != null) {
-            return lastName;
-        }
-        return username != null ? username : "Usuario " + telegramId;
+    public String getDisplayName() {
+        return householdName != null ? householdName : "Hogar " + telegramChatId;
     }
 }
